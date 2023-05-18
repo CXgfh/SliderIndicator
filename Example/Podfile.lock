@@ -1,0 +1,35 @@
+PODS:
+  - LookinServer (1.1.5):
+    - LookinServer/Core (= 1.1.5)
+  - LookinServer/Core (1.1.5)
+  - SliderIndicator (1.0.0):
+    - SnapKit
+    - Util_V
+  - SnapKit (5.6.0)
+  - Util_V (1.0.4)
+
+DEPENDENCIES:
+  - LookinServer
+  - SliderIndicator (from `../`)
+  - SnapKit
+  - Util_V
+
+SPEC REPOS:
+  trunk:
+    - LookinServer
+    - SnapKit
+    - Util_V
+
+EXTERNAL SOURCES:
+  SliderIndicator:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  LookinServer: 2893f2bae53cbf3fd49bbe1a8ea1745582ef1317
+  SliderIndicator: 8b5347bcaebb379aea9a51d2505b4107c896894e
+  SnapKit: e01d52ebb8ddbc333eefe2132acf85c8227d9c25
+  Util_V: 8f4ba74a1ff3ac07a2509439ab53dd73afa1442e
+
+PODFILE CHECKSUM: dbc084c4b61ca83c4cc48cd2adf56d2fa8c97edd
+
+COCOAPODS: 1.12.0

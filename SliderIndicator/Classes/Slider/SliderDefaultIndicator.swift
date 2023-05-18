@@ -1,0 +1,227 @@
+//
+//  SliderIndicator.swift
+//  SliderIndicator
+//
+//  Created by Vick on 2022/10/9.
+//
+
+import UIKit
+import Util_V
+import SnapKit
+
+public class SliderDefaultIndicator: UIView, SliderIndicatorView {
+    public var contentView: UIView {
+        return self
+    }
+    
+    public var delegate: SliderIndicatorDelegate?
+    
+    private let config: SliderConfig
+    
+    private var indicatorOffset: NSLayoutConstraint?
+    
+    //是否正在拖拽
+    private var dragging = false
+    
+    private var unitSize: CGFloat {
+        layoutIfNeeded()
+        if config.direction == .horizontal {
+            return (self.bounds.width - config.indicatorSize)/100.0
+        } else {
+            return (self.bounds.height - config.indicatorSize)/100.0
+        }
+    }
+    
+    public var multiplied: Double = 0 {
+        didSet {
+            dragging = false
+            var correction: CGFloat
+            if multiplied < 0 {
+                correction = 0
+            } else if multiplied > 100 {
+                correction = 100
+            } else {
+                correction = CGFloat(multiplied)
+            }
+            progress = unitSize*correction
+        }
+    }
+    
+    private var progress: CGFloat = 0 {
+        didSet {
+            if config.direction == .horizontal {
+                indicatorOffset?.constant = progress
+            } else {
+                indicatorOffset?.constant = -progress
+            }
+            if dragging, progress != oldValue {
+                let newValue = progress/unitSize/100
+                delegate?.sliderChanged(self, to: newValue)
+            }
+        }
+    }
+    
+    private lazy var sliderView: UIView = {
+        let object = UIView()
+        object.backgroundColor = config.sliderColor
+        object.layer.cornerRadius = config.sliderSize/2
+        object.layer.masksToBounds = true
+        return object
+    }()
+    
+    private lazy var progressView: UIView = {
+        let object = UIView()
+        object.backgroundColor = config.progressColor
+        return object
+    }()
+    
+    private lazy var indicatorView: UIView = {
+        let object = UIView()
+        object.backgroundColor = .white
+        object.layer.cornerRadius = config.indicatorCornerRadius
+        object.layer.masksToBounds = true
+        return object
+    }()
+    
+    private lazy var alphaAnimation: CABasicAnimation = {
+        let animation = CABasicAnimation(keyPath: "opacity")
+        animation.isCumulative = false
+        animation.autoreverses = false
+        animation.timingFunction = .init(name: .default)
+        animation.isRemovedOnCompletion = false
+        animation.fillMode = .forwards
+        animation.repeatCount = 1
+        animation.duration = 0.17
+        animation.fromValue = 1
+        animation.toValue = 0
+        return animation
+    }()
+    
+    private override init(frame: CGRect) {
+        fatalError("init(frame:) has not been implemented")
+    }
+    
+    public init(config: SliderConfig) {
+        self.config = config
+        super.init(frame: .zero)
+        setupUI()
+        self.addGestureRecognizer(UIPanGestureRecognizer.init(target: self, action: #selector(panProgess)))
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
+extension SliderDefaultIndicator {
+    public func updateSlider() {
+        progress = unitSize*multiplied
+    }
+    
+    public func addIndicator(_ indicator: UIView) {
+        if !indicatorView.subviews.isEmpty {
+            indicatorView.subviews.forEach{ $0.removeFromSuperview() }
+        }
+        indicatorView.backgroundColor = .clear
+        indicatorView.layer.cornerRadius = 0
+        indicatorView.addSubview(indicator)
+        
+        if config.direction == .horizontal {
+            indicator.snp.makeConstraints { make in
+                make.centerY.left.right.equalToSuperview()
+            }
+        } else {
+            indicator.snp.makeConstraints { make in
+                make.centerX.top.bottom.equalToSuperview()
+            }
+        }
+    }
+    
+    public func showContent() {
+        self.layer.removeAllAnimations()
+        self.alpha = 1
+    }
+    
+    public func hideContent() {
+        self.layer.add(alphaAnimation, forKey: nil)
+    }
+}
+
+extension SliderDefaultIndicator {
+    private func setupUI() {
+        self.addSubviews(sliderView, indicatorView)
+        
+        if config.direction == .horizontal {
+            sliderView.snp.makeConstraints { make in
+                make.centerY.left.right.equalToSuperview()
+                make.height.equalTo(config.sliderSize)
+            }
+            
+            indicatorView.snp.makeConstraints { make in
+                make.top.bottom.equalToSuperview()
+                make.width.equalTo(config.indicatorSize)
+            }
+            indicatorOffset = NSLayoutConstraint(item: indicatorView, attribute: .left, relatedBy: .equal, toItem: self, attribute: .left, multiplier: 1, constant: 0)
+            indicatorOffset?.isActive = true
+            
+            self.sliderView.addSubviews(progressView)
+            progressView.snp.makeConstraints { make in
+                make.left.top.bottom.equalTo(sliderView)
+                make.right.equalTo(indicatorView.snp.centerX)
+            }
+        } else {
+            sliderView.snp.makeConstraints { make in
+                make.centerX.top.bottom.equalToSuperview()
+                make.width.equalTo(config.sliderSize)
+            }
+            
+            indicatorView.snp.makeConstraints { make in
+                make.left.right.equalToSuperview()
+                make.height.equalTo(config.indicatorSize)
+            }
+            indicatorOffset = NSLayoutConstraint(item: indicatorView, attribute: .bottom, relatedBy: .equal, toItem: self, attribute: .bottom, multiplier: 1, constant: 0)
+            indicatorOffset?.isActive = true
+            
+            self.sliderView.addSubviews(progressView)
+            progressView.snp.makeConstraints { make in
+                make.left.right.bottom.equalTo(sliderView)
+                make.top.equalTo(indicatorView.snp.centerY)
+            }
+        }
+    }
+}
+
+extension SliderDefaultIndicator {
+    @objc private func panProgess(_ sender: UIPanGestureRecognizer) {
+        dragging = true
+        switch sender.state {
+        case .began:
+            delegate?.sliderStartDragging(self)
+        case .changed:
+            if config.direction == .horizontal {
+                let x = sender.translation(in: self).x
+                if x + progress < 0 {
+                    progress = 0
+                } else if x + progress > unitSize * 100 {
+                    progress = unitSize * 100
+                } else {
+                    progress += x
+                }
+            } else {
+                let y = -sender.translation(in: self).y
+                if y + progress < 0 {
+                    progress = 0
+                } else if y + progress > unitSize * 100 {
+                    progress = unitSize * 100
+                } else {
+                    progress += y
+                }
+            }
+            sender.setTranslation(.zero, in: self)
+        case .ended:
+            delegate?.sliderEndedDragging(self)
+        default:
+            break
+        }
+    }
+}

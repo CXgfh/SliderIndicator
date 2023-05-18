@@ -1,13 +1,11 @@
 use_frameworks!
 
-platform :ios, '10.0'
+platform :ios, '11.0'
 
 target 'SliderIndicator_Example' do
   pod 'SliderIndicator', :path => '../'
 
-  target 'SliderIndicator_Tests' do
-    inherit! :search_paths
-
-    
-  end
+  pod 'Util_V'
+  pod 'LookinServer'
+  pod 'SnapKit'
 end
