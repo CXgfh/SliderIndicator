@@ -369,10 +369,10 @@ extension VideoTailoringSliderIndicator {
     @objc private func playTap() {
         isPlaying = !isPlaying
         if isPlaying {
-            if maxMultiplied < multiplied {
+            if multiplied < maxMultiplied {
                 delegate?.videoTailoringSliderStartPlayer?(at: multiplied)
             } else {
-                delegate?.videoTailoringSliderStartPlayer?()
+                delegate?.videoTailoringSliderStartPlayer?(at: minMultiplied)
             }
         } else {
             delegate?.videoTailoringSliderStopPlayer?()
