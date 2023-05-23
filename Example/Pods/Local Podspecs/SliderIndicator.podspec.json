@@ -25,6 +25,10 @@
       "SliderIndicator/Assets/*"
     ]
   },
+  "frameworks": [
+    "UIKit",
+    "Photos"
+  ],
   "dependencies": {
     "Util_V": [
 
