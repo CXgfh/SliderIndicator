@@ -55,7 +55,7 @@ public class SliderDefaultIndicator: UIView, SliderIndicatorView {
                 indicatorOffset?.constant = -progress
             }
             if dragging, progress != oldValue {
-                let newValue = progress/unitSize/100
+                let newValue = progress/unitSize/100.0
                 delegate?.sliderChanged(self, to: newValue)
             }
         }

@@ -60,7 +60,7 @@ public class VideoTailoringSliderIndicator: UIView {
                 correction = CGFloat(multiplied)
             }
             progressX = unitWidth*correction
-            currentTimeLabel.text = (duration*multiplied).mediaTime
+            currentTimeLabel.text = (duration*correction/100.0).mediaTime
         }
     }
     
@@ -174,8 +174,8 @@ public class VideoTailoringSliderIndicator: UIView {
         didSet {
             indicatorLeft?.constant = progressX
             if dragging, progressX != oldValue {
-                let newValue = progressX/unitWidth/100
-                currentTimeLabel.text = (duration*multiplied).mediaTime
+                let newValue = progressX/unitWidth/100.0
+                currentTimeLabel.text = (duration*newValue).mediaTime
                 delegate?.videoTailoringSliderCurrentTime?(newValue)
             }
         }
@@ -370,9 +370,9 @@ extension VideoTailoringSliderIndicator {
         isPlaying = !isPlaying
         if isPlaying {
             if multiplied < maxMultiplied {
-                delegate?.videoTailoringSliderStartPlayer?(at: multiplied)
+                delegate?.videoTailoringSliderStartPlayer?(at: multiplied/100.0)
             } else {
-                delegate?.videoTailoringSliderStartPlayer?(at: minMultiplied)
+                delegate?.videoTailoringSliderStartPlayer?(at: minMultiplied/100.0)
             }
         } else {
             delegate?.videoTailoringSliderStopPlayer?()
