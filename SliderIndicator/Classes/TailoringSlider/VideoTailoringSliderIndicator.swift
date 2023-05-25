@@ -13,8 +13,8 @@ import SnapKit
 @objc public protocol VideoTailoringSliderIndicatorDelegate: AnyObject {
     @objc optional func videoTailoringSliderStopPlayer()
     @objc optional func videoTailoringSliderStartPlayer()
-    @objc optional func videoTailoringSliderStartPlayer(at currentMultiplied: Double)
-    @objc optional func videoTailoringSliderCurrentTime(_ currentMultiplied: Double)
+    @objc optional func videoTailoringSliderStartPlayer(at newValue: Float)
+    @objc optional func videoTailoringSliderCurrentTime(to newValue: Float)
 }
 
 public class VideoTailoringSliderIndicator: UIView {
@@ -41,32 +41,32 @@ public class VideoTailoringSliderIndicator: UIView {
     }
     
     //左裁剪比例
-    public var minMultiplied: Double {
-        return (leftLayout?.constant ?? 0)/unitWidth
+    public var minMultiplied: Float {
+        return Float((leftLayout?.constant ?? 0)/unitWidth/100.0)
     }
     
     //当前进度比例
-    public var multiplied: Double = 0 {
+    public var multiplied: Float = 0 {
         didSet {
-            dragging = false
-            var correction: CGFloat
-            if multiplied < minMultiplied {
-                correction = minMultiplied
-            } else if multiplied >= maxMultiplied {
-                correction = maxMultiplied
-                delegate?.videoTailoringSliderStopPlayer?()
-                isPlaying = false
-            } else {
-                correction = CGFloat(multiplied)
+            if oldValue != multiplied {
+                dragging = false
+                var correction = multiplied
+                if correction < minMultiplied {
+                    correction = minMultiplied
+                } else if correction > maxMultiplied {
+                    correction = maxMultiplied
+                    delegate?.videoTailoringSliderStopPlayer?()
+                    isPlaying = false
+                }
+                progressX = unitWidth*CGFloat(correction)*100
+                currentTimeLabel.text = (duration*Double(correction)).mediaTime
             }
-            progressX = unitWidth*correction
-            currentTimeLabel.text = (duration*correction/100.0).mediaTime
         }
     }
     
     //右裁剪比例
-    public var maxMultiplied: Double {
-        return (imageContentView.width - config.indicatorWidth + (rightLayout?.constant ?? 0))/unitWidth
+    public var maxMultiplied: Float {
+        return Float((imageContentView.width - config.indicatorWidth + (rightLayout?.constant ?? 0))/unitWidth/100.0)
     }
     
     //图片尺寸
@@ -172,11 +172,14 @@ public class VideoTailoringSliderIndicator: UIView {
 
     private var progressX: CGFloat = 0 {
         didSet {
-            indicatorLeft?.constant = progressX
-            if dragging, progressX != oldValue {
-                let newValue = progressX/unitWidth/100.0
-                currentTimeLabel.text = (duration*newValue).mediaTime
-                delegate?.videoTailoringSliderCurrentTime?(newValue)
+            if oldValue != progressX {
+                indicatorLeft?.constant = progressX
+                if dragging, progressX != oldValue {
+                    let newValue = progressX/unitWidth/100.0
+                    multiplied = Float(newValue)
+                    currentTimeLabel.text = (duration*newValue).mediaTime
+                    delegate?.videoTailoringSliderCurrentTime?(to: multiplied)
+                }
             }
         }
     }
@@ -370,9 +373,9 @@ extension VideoTailoringSliderIndicator {
         isPlaying = !isPlaying
         if isPlaying {
             if multiplied < maxMultiplied {
-                delegate?.videoTailoringSliderStartPlayer?(at: multiplied/100.0)
+                delegate?.videoTailoringSliderStartPlayer?(at: multiplied)
             } else {
-                delegate?.videoTailoringSliderStartPlayer?(at: minMultiplied/100.0)
+                delegate?.videoTailoringSliderStartPlayer?(at: minMultiplied)
             }
         } else {
             delegate?.videoTailoringSliderStopPlayer?()

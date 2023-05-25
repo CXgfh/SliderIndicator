@@ -8,14 +8,14 @@
 import UIKit
 
 public protocol SliderIndicatorDelegate: AnyObject {
-    func sliderChanged(_ slider: SliderView, to newValue: CGFloat)
+    func sliderChanged(_ slider: SliderView, to newValue: Float)
     func sliderStartDragging(_ slider: SliderView)
     func sliderEndedDragging(_ slider: SliderView)
 }
 
 public protocol SliderView: UIView {
     var delegate: SliderIndicatorDelegate? { get set }
-    var multiplied: Double { get set }
+    var multiplied: Float { get set }
     var contentView: UIView { get }
     func showContent()
     func hideContent()

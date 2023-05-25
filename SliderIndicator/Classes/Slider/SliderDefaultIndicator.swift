@@ -32,31 +32,34 @@ public class SliderDefaultIndicator: UIView, SliderIndicatorView {
         }
     }
     
-    public var multiplied: Double = 0 {
+    public var multiplied: Float = 0 {
         didSet {
-            dragging = false
-            var correction: CGFloat
-            if multiplied < 0 {
-                correction = 0
-            } else if multiplied > 100 {
-                correction = 100
-            } else {
-                correction = CGFloat(multiplied)
+            if multiplied != oldValue {
+                dragging = false
+                var correction = multiplied
+                if correction < 0 {
+                    correction = 0
+                } else if correction > 1 {
+                    correction = 1
+                }
+                progress = unitSize*CGFloat(correction)*100
             }
-            progress = unitSize*correction
         }
     }
     
     private var progress: CGFloat = 0 {
         didSet {
-            if config.direction == .horizontal {
-                indicatorOffset?.constant = progress
-            } else {
-                indicatorOffset?.constant = -progress
-            }
-            if dragging, progress != oldValue {
-                let newValue = progress/unitSize/100.0
-                delegate?.sliderChanged(self, to: newValue)
+            if progress != oldValue {
+                if config.direction == .horizontal {
+                    indicatorOffset?.constant = progress
+                } else {
+                    indicatorOffset?.constant = -progress
+                }
+                if dragging, progress != oldValue {
+                    let newValue = progress/unitSize/100.0
+                    multiplied = Float(newValue)
+                    delegate?.sliderChanged(self, to: multiplied)
+                }
             }
         }
     }
@@ -115,7 +118,7 @@ public class SliderDefaultIndicator: UIView, SliderIndicatorView {
 
 extension SliderDefaultIndicator {
     public func updateSlider() {
-        progress = unitSize*multiplied
+        progress = unitSize*CGFloat(multiplied)*100
     }
     
     public func addIndicator(_ indicator: UIView) {

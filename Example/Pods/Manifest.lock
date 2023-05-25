@@ -2,7 +2,7 @@ PODS:
   - LookinServer (1.1.5):
     - LookinServer/Core (= 1.1.5)
   - LookinServer/Core (1.1.5)
-  - SliderIndicator (1.0.2):
+  - SliderIndicator (1.0.3):
     - SnapKit
     - Util_V
   - SnapKit (5.6.0)
@@ -26,7 +26,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   LookinServer: 2893f2bae53cbf3fd49bbe1a8ea1745582ef1317
-  SliderIndicator: 0cf3b8bcba12f7e1f45009e6174c70b6830d8f83
+  SliderIndicator: d59f080e5c8bbd7ad65d4a441f5dc2cbef8b35c1
   SnapKit: e01d52ebb8ddbc333eefe2132acf85c8227d9c25
   Util_V: 8f4ba74a1ff3ac07a2509439ab53dd73afa1442e
 
