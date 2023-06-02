@@ -10,6 +10,14 @@ import Util_V
 import SnapKit
 
 public class SliderDefaultIndicator: UIView, SliderIndicatorView {
+    public var extraContentView: UIView {
+        return extraView
+    }
+    
+    public var indicatorContentView: UIView {
+        return indicatorView
+    }
+    
     public var contentView: UIView {
         return self
     }
@@ -26,9 +34,9 @@ public class SliderDefaultIndicator: UIView, SliderIndicatorView {
     private var unitSize: CGFloat {
         layoutIfNeeded()
         if config.direction == .horizontal {
-            return (self.bounds.width - config.indicatorSize)/100.0
+            return (self.bounds.width - config.indicatorSize - config.extraViewSize)/100.0
         } else {
-            return (self.bounds.height - config.indicatorSize)/100.0
+            return (self.bounds.height - config.indicatorSize - config.extraViewSize)/100.0
         }
     }
     
@@ -63,6 +71,8 @@ public class SliderDefaultIndicator: UIView, SliderIndicatorView {
             }
         }
     }
+    
+    private lazy var extraView = UIView()
     
     private lazy var sliderView: UIView = {
         let object = UIView()
@@ -152,11 +162,17 @@ extension SliderDefaultIndicator {
 
 extension SliderDefaultIndicator {
     private func setupUI() {
-        self.addSubviews(sliderView, indicatorView)
+        self.addSubviews(extraView, sliderView, indicatorView)
         
         if config.direction == .horizontal {
+            extraView.snp.makeConstraints { make in
+                make.left.top.bottom.equalToSuperview()
+                make.width.equalTo(config.extraViewSize)
+            }
+            
             sliderView.snp.makeConstraints { make in
-                make.centerY.left.right.equalToSuperview()
+                make.left.equalToSuperview().inset(config.extraViewSize)
+                make.centerY.right.equalToSuperview()
                 make.height.equalTo(config.sliderSize)
             }
             
@@ -164,7 +180,7 @@ extension SliderDefaultIndicator {
                 make.top.bottom.equalToSuperview()
                 make.width.equalTo(config.indicatorSize)
             }
-            indicatorOffset = NSLayoutConstraint(item: indicatorView, attribute: .left, relatedBy: .equal, toItem: self, attribute: .left, multiplier: 1, constant: 0)
+            indicatorOffset = NSLayoutConstraint(item: indicatorView, attribute: .left, relatedBy: .equal, toItem: sliderView, attribute: .left, multiplier: 1, constant: 0)
             indicatorOffset?.isActive = true
             
             self.sliderView.addSubviews(progressView)
@@ -182,7 +198,7 @@ extension SliderDefaultIndicator {
                 make.left.right.equalToSuperview()
                 make.height.equalTo(config.indicatorSize)
             }
-            indicatorOffset = NSLayoutConstraint(item: indicatorView, attribute: .bottom, relatedBy: .equal, toItem: self, attribute: .bottom, multiplier: 1, constant: 0)
+            indicatorOffset = NSLayoutConstraint(item: indicatorView, attribute: .bottom, relatedBy: .equal, toItem: sliderView, attribute: .bottom, multiplier: 1, constant: 0)
             indicatorOffset?.isActive = true
             
             self.sliderView.addSubviews(progressView)

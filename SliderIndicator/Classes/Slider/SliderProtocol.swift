@@ -24,6 +24,9 @@ public protocol SliderView: UIView {
 public protocol SliderIndicatorView: SliderView {
     func updateSlider()
     func addIndicator(_ indicator: UIView)
+    var indicatorContentView: UIView { get }
+    var extraContentView: UIView { get }
+    
 }
 
 public protocol SliderLevelIndicatorView: SliderView {

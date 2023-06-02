@@ -15,10 +15,15 @@ class ViewController: UIViewController {
 
     private lazy var slider: SliderDefaultIndicator = {
         var config = SliderConfig.shared
+        config.extraViewSize = 50
         
         let slider = SliderDefaultIndicator(config: config)
         slider.delegate = self
         slider.addIndicator(UIView())
+        
+        slider.extraContentView.addSubview(UIView())
+        
+        slider.indicatorContentView
         return slider
     }()
     
@@ -65,7 +70,7 @@ class ViewController: UIViewController {
 
 
 extension ViewController: SliderIndicatorDelegate {
-    func sliderChanged(_ slider: SliderIndicator.SliderView, to newValue: CGFloat) {
+    func sliderChanged(_ slider: SliderIndicator.SliderView, to newValue: Float) {
         
     }
     

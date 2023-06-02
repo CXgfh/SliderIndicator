@@ -21,6 +21,7 @@ public struct SliderConfig {
     public var progressColor: UIColor = .blue
     public var indicatorSize: CGFloat = 8
     public var indicatorCornerRadius: CGFloat = 4
+    public var extraViewSize: CGFloat = 0
 }
 
 public enum SliderLevel: CaseIterable {
